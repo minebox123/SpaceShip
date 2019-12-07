@@ -32,26 +32,26 @@ class SpaceShip {
     this.fireWidth = 5;
     this.fireHeight = 15;
     this.fireY = this.y - this.height - 20;
+    this.bulletX = this.x + this.width / 2.2;
+    this.bulletY = this.y - this.height - 30;
   }
 
   draw() {
     c.fillRect(this.x, this.y - this.height - 20, this.width, this.height);
-
-    c.fillRect(
-      this.x + this.width / 2,
-      this.fireY,
-      this.fireWidth,
-      this.fireHeight
-    );
   }
+
+  // drawBullet() {
+  //   // draw a bullet
+  //   c.fillRect(this.bulletX, this.bulletY, 10, 15);
+  // }
 
   move() {
     this.draw();
   }
 
-  fire() {
-    bullet.fire();
-  }
+  // fire() {
+  //   this.bulletY -= this.vy;
+  // }
 
   borders() {
     if (this.x <= 200) {
@@ -63,29 +63,29 @@ class SpaceShip {
   }
 }
 
-// class Bullet {
-//     constructor() {
-//         this.x = ship.x;
-//         this.y = ship.y - ship.height - 25;
-//         this.fireWidth = 5;
-//         this.fireHeight = 15;
-//     }
+class Bullet {
+  constructor(x) {
+    this.x = x;
+    this.y = ship.y - ship.height - 30;
+    this.width = 10;
+    this.height = 15;
+  }
 
-//     draw() {
-//         c.fillRect(this.x + ship.width / 2, this.y, this.fireWidth, this.fireHeight);
-//     }
-//     fire() {
-//         this.draw();
-//         document.addEventListener("keypress", e => {
-//             if (e.keyCode === 32) {
-//                 this.y -= 8;
-//             }
-//         })
-//     }
-// }
+  draw() {
+    c.fillRect(this.x, this.y, this.width, this.height);
+  }
 
+  fly() {
+    this.draw();
+    this.y -= 5;
+  }
+}
+
+let fire = false;
 const ship = new SpaceShip();
-// const bullet = new Bullet();
+
+// array of bullets
+const bullets = [];
 
 function animation() {
   requestAnimationFrame(animation);
@@ -94,16 +94,35 @@ function animation() {
   ship.borders();
   leftColumn.draw();
   rightColumn.draw();
+
+  bullets.map(bullet => {
+    if (fire) {
+      bullet.fly();
+    }
+  });
 }
-console.log(toggle);
 
 if (toggle) {
   document.addEventListener("keydown", e => {
     if (e.keyCode === 37) {
+      // bullets.push(new Bullet(ship.x + ship.width / 2.2));
       ship.x -= ship.vx;
+      if (!fire) {
+        // bullet.x -= ship.vx;
+      }
     }
     if (e.keyCode === 39) {
+      // bullets.push(new Bullet(ship.x + ship.width / 2.2));
+
       ship.x += ship.vx;
+      if (!fire) {
+        // bullet.x += ship.vx;
+      }
+    }
+    if (e.keyCode === 32) {
+      bullets.push(new Bullet(ship.x + ship.width / 2.2));
+
+      fire = true;
     }
   });
 }
