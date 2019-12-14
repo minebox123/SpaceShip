@@ -6,23 +6,11 @@ export default class Aliens {
     this.y = y;
     this.width = width;
     this.height = height;
-    this.vx = 10;
+    this.vx = 3;
   }
 
   draw() {
+    c.fillStyle = "#fff";
     c.fillRect(this.x, this.y, this.width, this.height);
-  }
-
-  move() {
-    setInterval(() => {
-      this.x -= this.vx;
-      if (this.x <= 300) {
-        this.vx = -this.vx;
-      } else if (this.x + this.width >= canvas.width - 300) {
-        this.vx = -this.vx;
-      }
-    }, 300);
-
-    // console.log(this.x);
   }
 }
