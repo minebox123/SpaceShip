@@ -7,6 +7,7 @@ export default class Aliens {
     this.width = width;
     this.height = height;
     this.vx = 3;
+    this.bullet = [];
   }
 
   draw() {

@@ -79,9 +79,9 @@ class SpaceShip {
 }
 
 class Bullet {
-  constructor(x) {
+  constructor(x, y) {
     this.x = x;
-    this.y = ship.y - ship.height - 30;
+    this.y = y;
     this.width = 10;
     this.height = 15;
     this.exist = true;
@@ -95,15 +95,19 @@ class Bullet {
     this.draw();
     this.y -= 5;
   }
+
+  alienShot() {
+    this.y += 5;
+  }
 }
 
 // let fire = false;
 const ship = new SpaceShip();
 
-const node = [];
+const aliens = [];
 for (let col = 0; col < 5; col++) {
   for (let row = 0; row < 4; row++) {
-    node.push(new Aliens(col * 60 + 400, row * 40 + 50, 35, 25));
+    aliens.push(new Aliens(col * 60 + 400, row * 40 + 50, 35, 25));
   }
 }
 
@@ -121,9 +125,22 @@ for (let i = 0; i < 30; i++) {
 
 // array of bullets
 const bullets = [];
+const aliensBullets = [];
 
+for (let i = 0; i < aliens.length; i++) {
+  let alien = aliens[i];
+  for (let j = 0; j < 10; j++) {
+    aliensBullets.push(new Bullet(alien.x + alien.width / 2, alien.y));
+  }
+}
+
+console.log(aliensBullets);
+
+let points = 0;
+let game = true;
 function animation() {
-  requestAnimationFrame(animation);
+  if (game) requestAnimationFrame(animation);
+
   c.clearRect(0, 0, canvas.width, canvas.height);
   ship.move();
   ship.borders();
@@ -131,18 +148,18 @@ function animation() {
   // rightColumn.draw();
 
   let borders = false;
-  node.map(al => al.draw());
-  for (let i = 0; i < node.length; i++) {
-    let invader = node[i];
+  aliens.map(al => al.draw());
+  for (let i = 0; i < aliens.length; i++) {
+    let invader = aliens[i];
     invader.x += invader.vx;
-    if (invader.x + invader.width >= canvas.width - 200 || invader.x < 200) {
+    if (invader.x + invader.width >= canvas.width - 200 || invader.x <= 200) {
       borders = true;
     }
   }
 
   if (borders) {
-    for (let i = 0; i < node.length; i++) {
-      let invader = node[i];
+    for (let i = 0; i < aliens.length; i++) {
+      let invader = aliens[i];
       // invader.y += 10;
       invader.vx = -invader.vx;
     }
@@ -152,13 +169,13 @@ function animation() {
     let bullet = bullets[i];
     bullet.fly();
 
-    if (bullet.y === 0) {
+    if (bullet.y <= 0) {
       bullets.splice(0, 1);
     }
   }
 
-  for (let i = 0; i < node.length; i++) {
-    let invader = node[i];
+  for (let i = 0; i < aliens.length; i++) {
+    let invader = aliens[i];
 
     for (let j = 0; j < bullets.length; j++) {
       let bullet = bullets[j];
@@ -168,19 +185,39 @@ function animation() {
         invader.y + invader.height >= bullet.y &&
         invader.y <= bullet.y + bullet.height
       ) {
-        let killedInvaderIndex = node.indexOf(invader);
+        let killedInvaderIndex = aliens.indexOf(invader);
         let reachedBullet = bullets.indexOf(bullet);
-        node.splice(killedInvaderIndex, 1);
+        aliens.splice(killedInvaderIndex, 1);
         bullets.splice(reachedBullet, 1);
+        points += 10;
       }
     }
   }
+  c.textAlign = "left";
+  c.font = "30px Arial";
+  c.fillText(`Points: ${points}`, 10, 50);
 
   // STARS
   stars.map(star => {
     star.draw();
     star.move();
   });
+
+  // ALIEN BULLETS
+  if (aliens.length === 0) {
+    ship.y -= 5;
+  }
+
+  if (ship.y + ship.height <= 0) {
+    c.textAlign = "center";
+    c.fillText("You won!", canvas.width / 2, canvas.height / 2);
+    c.fillText(
+      "Press space to start a new game",
+      canvas.width / 2,
+      canvas.height / 2 + 50
+    );
+    game = false;
+  }
 }
 
 if (toggle) {
@@ -192,7 +229,12 @@ if (toggle) {
       ship.x += ship.vx;
     }
     if (e.keyCode === 32) {
-      bullets.push(new Bullet(ship.x + ship.width / 2.2));
+      bullets.push(
+        new Bullet(ship.x + ship.width / 2.2, ship.y - ship.height - 30)
+      );
+    }
+    if (game === false && e.keyCode === 32) {
+      document.location.reload(true);
     }
   });
 }
